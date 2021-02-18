@@ -23,15 +23,18 @@ public struct VariableInjectorTool: ParsableCommand {
           help: "The path(s) to the file(s) where the tool should run.")
   public var files: [String] = []
   
-  @Option(name: [.customLong("ignore"), .customShort("i")],
-          help: "The names of variables that will be ignored even if that matches $(ENV_VAR) to avoid the replacing")
-  public var varLiteralsToIgnore: [String] = []
+  @Option(name: [.customLong("env"), .customShort("e")],
+          help: "The target env which we want to replaced with, first variable name, followed by it's value.")
+  public var environment: [String] = []
     
   public init() {}
   
   public mutating func validate() throws {
     if files.isEmpty {
       throw ValidationError("The path to at least one file where the variables will be injected should be provided. Use --file $path-to-file")
+    }
+    if environment.isEmpty {
+        throw ValidationError("We must set 1 env to inject, first one as the target token we want to replace, second one as the value we want to replace with, eg: --env SCHEMA_VALIDATION --env enable")
     }
   }
   
@@ -57,8 +60,8 @@ public struct VariableInjectorTool: ParsableCommand {
         let sourceFile = try SyntaxParser.parse(url)
         
         let envVarRewriter = EnvironmentVariableLiteralRewriter(
-                                environment: ProcessInfo.processInfo.environment,
-                                ignoredLiteralValues: varLiteralsToIgnore,
+                                environment: [environment[0] : environment[1]],
+                                ignoredLiteralValues: [],
                                 logger: logger
                              )
         let result = envVarRewriter.visit(sourceFile)
