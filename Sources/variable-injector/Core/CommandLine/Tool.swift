@@ -24,7 +24,7 @@ public struct VariableInjectorTool: ParsableCommand {
   public var files: [String] = []
   
   @Option(name: [.customLong("env"), .customShort("e")],
-          help: "The target env which we want to replaced with, first variable name, followed by it's value.")
+          help: "The target env which we want to replace with, the first env is the target variable name, and the secound env is the value we want to replace with.")
   public var environment: [String] = []
     
   public init() {}
